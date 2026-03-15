@@ -683,6 +683,79 @@
     border-radius: 2px;
   }
 
+  /* BEHIND THE BUILD */
+  .took-row {
+    padding: 32px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .took-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .took-label {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .reveal-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 9px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted2);
+    cursor: none;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+  .reveal-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,255,178,0.05); }
+  .reveal-btn.revealed { border-color: var(--accent); color: var(--bg); background: var(--accent); font-weight: 700; cursor: default; }
+  .counter-display { display: none; margin-top: 28px; }
+  .counter-value {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(56px, 10vw, 100px);
+    letter-spacing: -3px;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .counter-suffix {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted2);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+  .reveal-content { display: none; margin-top: 24px; }
+  .reveal-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .reveal-list li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted2);
+    padding: 14px 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .reveal-list li:hover { border-color: var(--accent); transform: translateX(4px); }
+  .reveal-list li::before { content: '▸'; color: var(--accent); font-size: 10px; flex-shrink: 0; }
+
   /* SCROLL REVEAL */
   .reveal {
     opacity: 0;
@@ -747,6 +820,7 @@
     <li><a href="#features">Features</a></li>
     <li><a href="#design">Design</a></li>
     <li><a href="#comparison">Compare</a></li>
+    <li><a href="behind.html">Behind the Build</a></li>
   </ul>
   <div class="nav-tag">Codeavour 7.0</div>
 </nav>
@@ -997,6 +1071,28 @@
   </div>
 </section>
 
+<!-- BEHIND THE BUILD BANNER -->
+<a href="behind.html" style="
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 48px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+" onmouseover="this.style.background='#111422'" onmouseout="this.style.background='var(--surface)'">
+  <div style="display:flex; align-items:center; gap:20px;">
+    <div>
+      <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:24px; color:var(--text); letter-spacing:-0.5px;">Behind the Build.</div>
+    </div>
+  </div>
+  <div style="font-family:'Syne',sans-serif; font-size:28px; color:var(--accent); opacity:0.5; transition:opacity 0.2s, transform 0.2s;" id="bannerArrow">→</div>
+</a>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-brand">SmartDrive Assist — TechCare Warriors</div>
@@ -1057,6 +1153,43 @@
     sections.forEach(s => { if (window.scrollY >= s.offsetTop - 120) cur = s.id; });
     navLinks.forEach(a => { a.style.color = a.getAttribute('href') === '#' + cur ? 'var(--accent)' : ''; });
   });
+  function revealLines() {
+    const btn = document.getElementById('btnLines');
+    const display = document.getElementById('counterDisplay');
+    const val = document.getElementById('counterVal');
+    btn.classList.add('revealed');
+    btn.textContent = 'Revealed';
+    btn.disabled = true;
+    display.style.display = 'block';
+    const target = 1062;
+    const duration = 2000;
+    const start = performance.now();
+    function step(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      val.textContent = Math.floor(eased * target).toLocaleString();
+      if (progress < 1) requestAnimationFrame(step);
+      else val.textContent = target.toLocaleString();
+    }
+    requestAnimationFrame(step);
+  }
+
+  function revealContent(id, btnId) {
+    const content = document.getElementById(id);
+    const btn = document.getElementById(btnId);
+    btn.classList.add('revealed');
+    btn.textContent = 'Revealed';
+    btn.disabled = true;
+    content.style.display = 'block';
+    const items = content.querySelectorAll('li');
+    items.forEach((item, i) => {
+      item.style.opacity = '0';
+      item.style.transform = 'translateX(-12px)';
+      item.style.transition = `opacity 0.3s ease ${i * 0.12}s, transform 0.3s ease ${i * 0.12}s`;
+      setTimeout(() => { item.style.opacity = '1'; item.style.transform = 'translateX(0)'; }, 20);
+    });
+  }
 </script>
 </body>
 </html>
