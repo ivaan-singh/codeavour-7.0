@@ -783,7 +783,7 @@
     vid.onended = null;
     vid.src = src;
     vid.currentTime = 0;
-    vid.playbackRate = 1;
+    vid.playbackRate = 0.6;
 
     let navigated = false;
     function go() {
@@ -794,7 +794,7 @@
 
     vid.addEventListener('ended', go, { once: true });
     // Hard fallback: if video is ~1.73s, wait 2.2s max then navigate anyway
-    const fallback = setTimeout(go, 2200);
+    const fallback = setTimeout(go, 3200);
 
     vid.play().catch(() => {
       // If play() fails for any reason, navigate immediately
