@@ -50,28 +50,27 @@
   #page-transition {
     position: fixed;
     inset: 0;
-    background: var(--bg);
     z-index: 99999;
     pointer-events: none;
     opacity: 0;
   }
-  #page-transition.fade-out {
-    animation: transOut 0.7s ease forwards;
+  #page-transition svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
   }
-  #page-transition.fade-in {
-    animation: transIn 0.6s ease forwards;
+  #page-transition.fade-out { animation: transOpacOut 1.1s ease forwards; }
+  #page-transition.fade-in  { animation: transOpacIn  0.9s ease forwards; }
+  @keyframes transOpacOut {
+    0%   { opacity: 0; }
+    8%   { opacity: 1; }
+    100% { opacity: 1; }
   }
-  @keyframes transOut {
-    0%   { opacity: 0; background: var(--bg); }
-    20%  { opacity: 1; background: var(--accent); }
-    55%  { opacity: 1; background: var(--bg); }
-    100% { opacity: 1; background: var(--bg); }
+  @keyframes transOpacIn {
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
   }
-  @keyframes transIn {
-    0%   { opacity: 1; background: var(--bg); }
-    35%  { opacity: 1; background: var(--accent); }
-    100% { opacity: 0; background: var(--bg); }
-  }
+  /* The diagonal split line animates via JS on the polygon points */
 
   /* CURSOR */
   .cursor {
@@ -476,7 +475,16 @@
 <body>
 
 <div id="scroll-progress"></div>
-<div id="page-transition"></div>
+<div id="page-transition">
+  <svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- black right side -->
+    <polygon id="trans-black" points="100,0 100,100 0,100 100,0" fill="#05070d"/>
+    <!-- neon green left side / diagonal slice -->
+    <polygon id="trans-green" points="0,0 0,100 0,100 0,0" fill="#00ffb2"/>
+    <!-- thin bright line at the diagonal -->
+    <line id="trans-line" x1="0" y1="100" x2="0" y2="100" stroke="#00ffb2" stroke-width="0.4" opacity="0.9"/>
+  </svg>
+</div>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 <div class="scanline"></div>
@@ -678,13 +686,11 @@
             </tr>
           </thead>
           <tbody>
-            <tr><td>Affordable</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
-            <tr><td>Reliable</td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
-            <tr><td>Easy Installation</td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
-            <tr><td>Safety</td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
-            <tr><td>Smart Features</td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td><td><span class="yes">✓</span></td></tr>
-            <tr><td>Self-Charging</td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
-            <tr><td>Manual Toggle</td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="yes">✓</span></td></tr>
+            <tr><td>Affordable</td><td><span class="yes">YES</span></td><td><span class="no">NO</span></td><td><span class="yes">YES</span></td></tr>
+            <tr><td>Reliable</td><td><span class="no">NO</span></td><td><span class="yes">YES</span></td><td><span class="yes">YES</span></td></tr>
+            <tr><td>Ease of Installation</td><td><span class="no">NO</span></td><td><span class="yes">YES</span></td><td><span class="yes">YES</span></td></tr>
+            <tr><td>Safety</td><td><span class="no">NO</span></td><td><span class="yes">YES</span></td><td><span class="yes">YES</span></td></tr>
+            <tr><td>Smart Features</td><td><span class="no">NO</span></td><td><span class="yes">YES</span></td><td><span class="yes">YES</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -759,24 +765,61 @@
     progressBar.style.width = pct + '%';
   }, { passive: true });
 
-  // ── PAGE TRANSITION ──
+  // ── PAGE TRANSITION (diagonal wipe) ──
   const overlay = document.getElementById('page-transition');
-  function navigateTo(url) {
-    overlay.classList.remove('fade-in');
-    overlay.classList.add('fade-out');
-    setTimeout(() => { window.location.href = url; }, 650);
+  const tGreen  = document.getElementById('trans-green');
+  const tBlack  = document.getElementById('trans-black');
+  const tLine   = document.getElementById('trans-line');
+
+  function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+  // The diagonal always runs from top-right (100,0) to bottom-left (0,100).
+  // 'progress' 0→1 sweeps how much of the screen is covered top-left (green).
+  // At progress p: the cut point on the top edge is (p*100, 0) and on the left edge is (0, p*100).
+  // Green polygon = top-left triangle: 0,0 → p*100,0 → 0,p*100
+  // Black polygon = rest
+  function setWipeProgress(p) {
+    const ex = p * 100, ey = p * 100; // end point on top edge and left edge
+    tGreen.setAttribute('points', `0,0 ${ex},0 0,${ey}`);
+    tBlack.setAttribute('points', `${ex},0 100,0 100,100 0,100 0,${ey}`);
+    tLine.setAttribute('x1', `${ex}`); tLine.setAttribute('y1', '0');
+    tLine.setAttribute('x2', '0');     tLine.setAttribute('y2', `${ey}`);
   }
+
+  function runWipe(direction, onComplete) {
+    overlay.style.opacity = '1';
+    const duration = direction === 'out' ? 1200 : 1000;
+    const start = performance.now();
+    function frame(now) {
+      const raw = Math.min((now - start) / duration, 1);
+      const p   = easeInOut(raw);
+      setWipeProgress(direction === 'out' ? p : 1 - p);
+      if (raw < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        if (direction === 'in') { overlay.style.opacity = '0'; }
+        if (onComplete) onComplete();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function navigateTo(url) {
+    runWipe('out', () => { window.location.href = url; });
+  }
+
   document.querySelectorAll('.nav-transition-link').forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
       navigateTo(link.getAttribute('href'));
     });
   });
-  // Fade in on arrival
+
+  // On page load: start fully covered (p=1), wipe away to reveal page
   window.addEventListener('load', () => {
+    setWipeProgress(1);
     overlay.style.opacity = '1';
-    overlay.classList.add('fade-in');
-    setTimeout(() => { overlay.style.opacity = '0'; }, 420);
+    setTimeout(() => runWipe('in'), 60);
   });
 
   // ── TYPING EFFECT ──
