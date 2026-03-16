@@ -212,7 +212,9 @@
     progressBar.style.width = pct + '%';
   }, { passive: true });
 
-  // ── PAGE TRANSITION (diagonal wipe) ──
+  // ── PAGE TRANSITION (alternating diagonal wipe) ──
+  let transCount = parseInt(sessionStorage.getItem('transCount') || '0');
+
   const overlay = document.getElementById('page-transition');
   const tGreen  = document.getElementById('trans-green');
   const tBlack  = document.getElementById('trans-black');
@@ -220,41 +222,55 @@
 
   function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
 
-  function setWipeProgress(p) {
+  function setWipeProgress(p, isGreen) {
     const ex = p * 100, ey = p * 100;
-    tGreen.setAttribute('points', `0,0 ${ex},0 0,${ey}`);
-    tBlack.setAttribute('points', `${ex},0 100,0 100,100 0,100 0,${ey}`);
+    if (isGreen) {
+      tGreen.setAttribute('points', `0,0 ${ex},0 0,${ey}`);
+      tBlack.setAttribute('points', '0,0 0,0 0,0');
+      tLine.setAttribute('stroke', '#00ffb2');
+    } else {
+      tBlack.setAttribute('points', `0,0 ${ex},0 0,${ey}`);
+      tGreen.setAttribute('points', '0,0 0,0 0,0');
+      tLine.setAttribute('stroke', '#4d9fff');
+    }
     tLine.setAttribute('x1', `${ex}`); tLine.setAttribute('y1', '0');
     tLine.setAttribute('x2', '0');     tLine.setAttribute('y2', `${ey}`);
   }
 
-  function runWipe(direction, onComplete) {
+  function runWipe(direction, isGreen, onComplete) {
     overlay.style.opacity = '1';
-    const duration = direction === 'out' ? 1200 : 1000;
+    overlay.style.pointerEvents = direction === 'out' ? 'all' : 'none';
+    const duration = direction === 'out' ? 1100 : 950;
     const start = performance.now();
     function frame(now) {
       const raw = Math.min((now - start) / duration, 1);
       const p   = easeInOut(raw);
-      setWipeProgress(direction === 'out' ? p : 1 - p);
+      setWipeProgress(direction === 'out' ? p : 1 - p, isGreen);
       if (raw < 1) { requestAnimationFrame(frame); }
       else {
-        if (direction === 'in') { overlay.style.opacity = '0'; }
+        if (direction === 'in') { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }
         if (onComplete) onComplete();
       }
     }
     requestAnimationFrame(frame);
   }
 
-  function navigateTo(url) { runWipe('out', () => { window.location.href = url; }); }
+  function navigateTo(url) {
+    transCount++;
+    sessionStorage.setItem('transCount', transCount);
+    const isGreen = transCount % 2 === 1;
+    runWipe('out', isGreen, () => { window.location.href = url; });
+  }
 
   document.querySelectorAll('.nav-transition-link').forEach(link => {
     link.addEventListener('click', e => { e.preventDefault(); navigateTo(link.getAttribute('href')); });
   });
 
   window.addEventListener('load', () => {
-    setWipeProgress(1);
+    const isGreen = transCount % 2 === 1;
+    setWipeProgress(1, isGreen);
     overlay.style.opacity = '1';
-    setTimeout(() => runWipe('in'), 60);
+    setTimeout(() => runWipe('in', isGreen), 60);
   });
 
   // ── REVEAL CONTENT ──
