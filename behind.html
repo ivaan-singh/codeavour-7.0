@@ -131,10 +131,9 @@
 
 <div id="scroll-progress"></div>
 <div id="page-transition">
-  <svg viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <polygon id="trans-black" points="100,0 100,100 0,100 100,0" fill="#05070d"/>
-    <polygon id="trans-green" points="0,0 0,100 0,100 0,0" fill="#00ffb2"/>
-    <line id="trans-line" x1="0" y1="100" x2="0" y2="100" stroke="#00ffb2" stroke-width="0.4" opacity="0.9"/>
+  <svg id="trans-svg" viewBox="0 0 1 1" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon id="trans-green" points="0,0 0,0 0,0" fill="#00ffb2"/>
+    <polygon id="trans-black" points="0,0 0,0 0,0" fill="#05070d"/>
   </svg>
 </div>
 <div class="cursor" id="cursor"></div>
@@ -212,66 +211,72 @@
     progressBar.style.width = pct + '%';
   }, { passive: true });
 
-  // ── PAGE TRANSITION (alternating diagonal wipe) ──
+  // ── PAGE TRANSITION (diagonal wipe) ──
   let transCount = parseInt(sessionStorage.getItem('transCount') || '0');
 
   const overlay = document.getElementById('page-transition');
   const tGreen  = document.getElementById('trans-green');
   const tBlack  = document.getElementById('trans-black');
-  const tLine   = document.getElementById('trans-line');
 
-  function easeInOut(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+  function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
 
-  function setWipeProgress(p, isGreen) {
-    const ex = p * 100, ey = p * 100;
-    if (isGreen) {
-      tGreen.setAttribute('points', `0,0 ${ex},0 0,${ey}`);
-      tBlack.setAttribute('points', '0,0 0,0 0,0');
-      tLine.setAttribute('stroke', '#00ffb2');
+  function setDiagonal(p, isGreenWipe) {
+    if (isGreenWipe) {
+      const a = Math.min(p * 2, 1);
+      tGreen.setAttribute('points', `0,0 ${a},0 0,${a}`);
+      tBlack.setAttribute('points', `${a},0 1,0 1,1 0,1 0,${a}`);
     } else {
-      tBlack.setAttribute('points', `0,0 ${ex},0 0,${ey}`);
-      tGreen.setAttribute('points', '0,0 0,0 0,0');
-      tLine.setAttribute('stroke', '#4d9fff');
+      const b = Math.max(1 - p * 2, 0);
+      tGreen.setAttribute('points', `0,0 1,0 ${b},1 0,1`);
+      tBlack.setAttribute('points', `1,0 1,1 ${b},1`);
     }
-    tLine.setAttribute('x1', `${ex}`); tLine.setAttribute('y1', '0');
-    tLine.setAttribute('x2', '0');     tLine.setAttribute('y2', `${ey}`);
   }
 
-  function runWipe(direction, isGreen, onComplete) {
+  function runWipe(fromP, toP, isGreenWipe, duration, onComplete) {
     overlay.style.opacity = '1';
-    overlay.style.pointerEvents = direction === 'out' ? 'all' : 'none';
-    const duration = direction === 'out' ? 1100 : 950;
     const start = performance.now();
     function frame(now) {
       const raw = Math.min((now - start) / duration, 1);
-      const p   = easeInOut(raw);
-      setWipeProgress(direction === 'out' ? p : 1 - p, isGreen);
-      if (raw < 1) { requestAnimationFrame(frame); }
-      else {
-        if (direction === 'in') { overlay.style.opacity = '0'; overlay.style.pointerEvents = 'none'; }
-        if (onComplete) onComplete();
-      }
+      setDiagonal(fromP + (toP - fromP) * ease(raw), isGreenWipe);
+      if (raw < 1) requestAnimationFrame(frame);
+      else if (onComplete) onComplete();
     }
     requestAnimationFrame(frame);
   }
 
-  function navigateTo(url) {
+  function transitionOut(url) {
     transCount++;
     sessionStorage.setItem('transCount', transCount);
-    const isGreen = transCount % 2 === 1;
-    runWipe('out', isGreen, () => { window.location.href = url; });
+    const isGreenWipe = transCount % 2 === 1;
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'all';
+    if (isGreenWipe) {
+      tGreen.setAttribute('points', '0,0 0,0 0,0');
+      tBlack.setAttribute('points', '0,0 1,0 1,1 0,1');
+    } else {
+      tGreen.setAttribute('points', '0,0 1,0 1,1 0,1');
+      tBlack.setAttribute('points', '1,1 1,1 1,1');
+    }
+    setTimeout(() => {
+      runWipe(0, 1, isGreenWipe, 700, () => { window.location.href = url; });
+    }, 250);
+  }
+
+  function transitionIn() {
+    const isGreenWipe = transCount % 2 === 1;
+    overlay.style.opacity = '1';
+    overlay.style.pointerEvents = 'none';
+    setDiagonal(1, isGreenWipe);
+    setTimeout(() => {
+      runWipe(1, 0, isGreenWipe, 800, () => { overlay.style.opacity = '0'; });
+    }, 60);
   }
 
   document.querySelectorAll('.nav-transition-link').forEach(link => {
-    link.addEventListener('click', e => { e.preventDefault(); navigateTo(link.getAttribute('href')); });
+    link.addEventListener('click', e => { e.preventDefault(); transitionOut(link.getAttribute('href')); });
   });
 
-  window.addEventListener('load', () => {
-    const isGreen = transCount % 2 === 1;
-    setWipeProgress(1, isGreen);
-    overlay.style.opacity = '1';
-    setTimeout(() => runWipe('in', isGreen), 60);
-  });
+  window.addEventListener('load', transitionIn);
 
   // ── REVEAL CONTENT ──
   function revealContent(id, btnId) {
