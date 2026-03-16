@@ -761,7 +761,7 @@
   }, { passive: true });
 
   // ── PAGE TRANSITION (mp4 video) ──
-  // even transCount → video/black_transition.mp4 | odd → video/green_transition.mp4
+  // even transCount → videos/black_transition.mp4 | odd → videos/green_transition.mp4
   // EXIT: play video forward to end → navigate
   // ENTER: play video backward from end to start → hide overlay → start typewriter
   let transCount = parseInt(sessionStorage.getItem('transCount') || '0');
@@ -769,7 +769,7 @@
   const overlay = document.getElementById('page-transition');
   const vid     = document.getElementById('trans-video');
 
-  const VIDEOS = ['black_transition.mp4', 'green_transition.mp4'];
+  const VIDEOS = ['videos/black_transition.mp4', 'videos/green_transition.mp4'];
 
   function transitionOut(url) {
     transCount++;
