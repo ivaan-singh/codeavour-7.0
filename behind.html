@@ -254,16 +254,15 @@
   vid.src = src;
   vid.currentTime = 0;
 
-  // Default settings
-  let fallbackTime = 1950;
-  vid.playbackRate = 0.6;
+// Default settings (black transition)
+let fallbackTime = 1950;
+vid.playbackRate = 0.6;
 
-  // SPECIAL RULE FOR GREEN TRANSITION
-  if (src.includes('green_transition.mp4')) {
-    fallbackTime = 2000;   // 2 seconds
-    vid.playbackRate = 1;  // play at normal speed
-  }
-
+// GREEN TRANSITION → exactly 2 seconds
+if (src.includes('green_transition.mp4')) {
+  fallbackTime = 2000;
+  vid.playbackRate = 1;
+}
   let navigated = false;
 
   function go() {
