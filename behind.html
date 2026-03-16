@@ -223,11 +223,25 @@
     const src = VIDEOS[transCount % 2 === 0 ? 0 : 1];
     overlay.style.opacity = '1';
     overlay.style.pointerEvents = 'all';
+    vid.onended = null;
     vid.src = src;
     vid.currentTime = 0;
     vid.playbackRate = 1;
-    vid.onended = () => { window.location.href = url; };
-    vid.play();
+
+    let navigated = false;
+    function go() {
+      if (navigated) return;
+      navigated = true;
+      window.location.href = url;
+    }
+
+    vid.addEventListener('ended', go, { once: true });
+    const fallback = setTimeout(go, 2200);
+
+    vid.play().catch(() => {
+      clearTimeout(fallback);
+      go();
+    });
   }
 
   function transitionIn() {
