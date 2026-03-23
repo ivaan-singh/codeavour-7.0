@@ -140,14 +140,14 @@
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-logo nav-transition-link">// SmartDrive Assist</a>
+  <a href="../main-page/" class="nav-logo nav-transition-link">// SmartDrive Assist</a>
   <ul class="nav-links">
-    <li><a href="index.html#problem" class="nav-transition-link">Problem</a></li>
-    <li><a href="index.html#solution" class="nav-transition-link">Solution</a></li>
-    <li><a href="index.html#features" class="nav-transition-link">Features</a></li>
-    <li><a href="index.html#design" class="nav-transition-link">Design</a></li>
-    <li><a href="index.html#comparison" class="nav-transition-link">Compare</a></li>
-    <li><a href="behind.html" class="active">Behind the Build</a></li>
+    <li><a href="../main-page/#problem" class="nav-transition-link">Problem</a></li>
+    <li><a href="../main-page/#solution" class="nav-transition-link">Solution</a></li>
+    <li><a href="../main-page/#features" class="nav-transition-link">Features</a></li>
+    <li><a href="../main-page/#design" class="nav-transition-link">Design</a></li>
+    <li><a href="../main-page/#comparison" class="nav-transition-link">Compare</a></li>
+    <li><a href="../behind-the-build/" class="active">Behind the Build</a></li>
   </ul>
   <div class="nav-tag">Codeavour 7.0</div>
 </nav>
@@ -195,7 +195,7 @@
     </div>
   </div>
 
-  <a href="index.html" class="back-link nav-transition-link">← Back to Home Page</a>
+  <a href="../main-page/" class="back-link nav-transition-link">← Back to Home Page</a>
 </main>
 
 <footer>
@@ -239,12 +239,15 @@
 
   const overlay = document.getElementById('page-transition');
   const vid     = document.getElementById('trans-video');
-  const VIDEOS  = ['videos/black_transition.mp4', 'videos/green_transition.mp4'];
+  const VIDEOS    = ['../videos/black_transition.mp4', '../videos/green_transition.mp4'];
+  const FALLBACKS = [1950, 2000];
 
   function transitionOut(url) {
     transCount++;
     sessionStorage.setItem('transCount', transCount);
-    const src = VIDEOS[transCount % 2 === 0 ? 0 : 1];
+    const idx = transCount % 2 === 0 ? 0 : 1;
+    const src = VIDEOS[idx];
+    const fallbackMs = FALLBACKS[idx];
     overlay.style.opacity = '1';
     overlay.style.pointerEvents = 'all';
     vid.onended = null;
@@ -267,7 +270,7 @@
       window.location.href = url;
     }, { once: true });
 
-    const fallback = setTimeout(go, 2000);
+    const fallback = setTimeout(go, fallbackMs);
     vid.play().catch(() => { clearTimeout(fallback); go(); });
   }
 
@@ -312,9 +315,15 @@
     btn.textContent = 'Revealed';
     btn.disabled = true;
     display.style.display = 'block';
-    const hours = 0;
-    const sessions = 0;
-    const hours_ivaan = 0;
+    const hours = 1;
+    const projectStart = new Date('2026-01-22');
+    const today = new Date();
+    let sessions = 0;
+    for (let d = new Date(projectStart); d <= today; d.setDate(d.getDate() + 1)) {
+      const day = d.getDay();
+      if (day !== 0 && day !== 6) sessions++;
+    }
+    const hours_ivaan = 15;
     const hours_siraaj = 0;
     const hours_utsa = 0;
     const target = hours * sessions + hours_ivaan + hours_siraaj + hours_utsa;
