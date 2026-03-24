@@ -140,14 +140,14 @@
 
 <!-- NAV -->
 <nav>
-  <a href="/codeavour-7.0/main-page/" class="nav-logo nav-transition-link">// SmartDrive Assist</a>
+  <a href="/main-page/" class="nav-logo nav-transition-link">// SmartDrive Assist</a>
   <ul class="nav-links">
-    <li><a href="/codeavour-7.0/main-page/#problem" class="nav-transition-link">Problem</a></li>
-    <li><a href="/codeavour-7.0/main-page/#solution" class="nav-transition-link">Solution</a></li>
-    <li><a href="/codeavour-7.0/main-page/#features" class="nav-transition-link">Features</a></li>
-    <li><a href="/codeavour-7.0/main-page/#design" class="nav-transition-link">Design</a></li>
-    <li><a href="/codeavour-7.0/main-page/#comparison" class="nav-transition-link">Compare</a></li>
-    <li><a href="/codeavour-7.0/behind-the-build/" class="active">Behind the Build</a></li>
+    <li><a href="/main-page/#problem" class="nav-transition-link">Problem</a></li>
+    <li><a href="/main-page/#solution" class="nav-transition-link">Solution</a></li>
+    <li><a href="/main-page/#features" class="nav-transition-link">Features</a></li>
+    <li><a href="/main-page/#design" class="nav-transition-link">Design</a></li>
+    <li><a href="/main-page/#comparison" class="nav-transition-link">Compare</a></li>
+    <li><a href="/behind-the-build/" class="active">Behind the Build</a></li>
   </ul>
   <div class="nav-tag">Codeavour 7.0</div>
 </nav>
@@ -186,16 +186,26 @@
   <!-- Tools Used -->
   <div class="took-row">
     <div class="took-row-header">
-      <span class="took-label">Tools Used (Website & Product)</span>
+      <span class="took-label">Tools Used (Website & Product — Software)</span>
       <button class="reveal-btn" id="btnTools" onclick="revealContent('toolsContent', 'btnTools')">Reveal</button>
     </div>
     <div class="reveal-content" id="toolsContent">
+      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin-bottom:10px;">// Product (Coding & Design)</div>
       <ul class="reveal-list">
+        <li><a href="https://pictoblox.ai" target="_blank" style="color:inherit;text-decoration:none;">PictoBlox</a></li>
+      </ul>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin:16px 0 10px;">// Research</div>
+      <ul class="reveal-list">
+      </ul>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); margin:16px 0 10px;">// Website</div>
+      <ul class="reveal-list">
+        <li><a href="https://claude.ai" target="_blank" style="color:inherit;text-decoration:none;">Claude</a></li>
+        <li><a href="https://github.com" target="_blank" style="color:inherit;text-decoration:none;">GitHub</a></li>
       </ul>
     </div>
   </div>
 
-  <a href="/codeavour-7.0/main-page/" class="back-link nav-transition-link">← Back to Home Page</a>
+  <a href="/main-page/" class="back-link nav-transition-link">← Back to Home Page</a>
 </main>
 
 <footer>
@@ -239,7 +249,7 @@
 
   const overlay = document.getElementById('page-transition');
   const vid     = document.getElementById('trans-video');
-  const VIDEOS    = ['/codeavour-7.0/videos/black_transition.mp4', '/codeavour-7.0/videos/green_transition.mp4'];
+  const VIDEOS    = ['/videos/black_transition.mp4', '/videos/green_transition.mp4'];
   const FALLBACKS = [1950, 2000];
 
   function transitionOut(url) {
