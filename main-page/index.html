@@ -886,6 +886,11 @@
     const fallbackMs = FALLBACKS[idx];
 
     overlay.style.opacity = '1';
+
+// force fade-out no matter what
+setTimeout(() => {
+  overlay.style.opacity = '0';
+}, 300);
     overlay.style.pointerEvents = 'all';
 
     vid.onended = null;
