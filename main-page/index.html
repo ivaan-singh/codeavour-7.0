@@ -1061,7 +1061,14 @@
 
   // - LIGHTBOX -
 function openLightbox() {
-  document.getElementById('lightbox').classList.add('open');
+  const lightbox = document.getElementById('lightbox');
+
+  lightbox.innerHTML = `
+    <img src="/techcare-warriors/images/endorsement_full.jpg"
+         style="max-width:90%; max-height:90%; border-radius:4px;">
+  `;
+
+  lightbox.classList.add('open');
 }
 
 function closeLightbox(e) {
