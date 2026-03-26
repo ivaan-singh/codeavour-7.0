@@ -916,14 +916,53 @@
     });
   }
 
-  function transitionIn(onComplete) {
-    // If we arrived via hard fallback, skip the video entirely
-    if (sessionStorage.getItem('skipTransIn') === '1') {
-      sessionStorage.removeItem('skipTransIn');
+function transitionIn(onComplete) {
+  if (sessionStorage.getItem('skipTransIn') === '1') {
+    sessionStorage.removeItem('skipTransIn');
+    overlay.style.opacity = '0';
+    if (onComplete) onComplete();
+    return;
+  }
+
+  const src = VIDEOS[transCount % 2 === 0 ? 0 : 1];
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'none';
+  vid.src = src;
+
+  let started = false;
+
+  function startAnim() {
+    if (started) return;
+    started = true;
+
+    vid.currentTime = vid.duration || 1;
+
+    function stepBack() {
+      if (vid.currentTime <= 0) {
+        overlay.style.opacity = '0';
+        vid.pause();
+        if (onComplete) onComplete();
+        return;
+      }
+      vid.currentTime -= 1 / 30;
+      requestAnimationFrame(stepBack);
+    }
+
+    requestAnimationFrame(stepBack);
+  }
+
+  // normal case
+  vid.onloadedmetadata = startAnim;
+
+  // 🚑 fallback if video fails
+  setTimeout(() => {
+    if (!started) {
+      console.warn("Transition video failed — fallback triggered");
       overlay.style.opacity = '0';
       if (onComplete) onComplete();
-      return;
     }
+  }, 500);
+}
 
     const src = VIDEOS[transCount % 2 === 0 ? 0 : 1];
     overlay.style.opacity = '1';
