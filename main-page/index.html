@@ -448,6 +448,71 @@
   .behind-arrow { font-family: 'Syne', sans-serif; font-size: 28px; color: var(--accent); opacity: 0; transform: translateX(-8px); transition: opacity 0.55s ease, transform 0.55s ease; }
   .behind-banner:hover .behind-arrow { opacity: 1; transform: translateX(0); transition: opacity 0.55s ease, transform 0.55s ease; }
 
+  /* ENDORSEMENT LETTER */
+  .lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(5,7,13,0.95);
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+.lightbox.open {
+  display: flex;
+}
+
+.lightbox img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 6px;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  font-size: 28px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.endorsement-card {
+  position: relative;
+  max-width: 500px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.endorsement-card img {
+  width: 100%;
+  display: block;
+}
+
+.endorsement-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+}
+
+.endorsement-org {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.endorsement-hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted2);
+}
+
   /* SCROLL REVEAL */
   .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.visible { opacity: 1; transform: none; }
@@ -722,12 +787,28 @@
         </table>
       </div>
     </div>
-    <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-  <div class="lightbox-inner">
-    <img src="endorsement_letter.pdf" alt="BraveHearts Soldier Foundation Endorsement Letter Full">
-    <button class="lightbox-close" onclick="closeLightbox()">✕ Close</button>
+<section id="endorsement">
+  <div class="solution-layout reveal">
+    
+    <div class="section-label">// Validation</div>
+    <h2 class="section-title">Backed by<br><span>real impact.</span></h2>
+
+    <p class="section-desc" style="margin-bottom:32px;">
+      Formally endorsed by <strong style="color:var(--text)">BraveHeart Soldier Foundation</strong>.
+    </p>
+
+    <div style="display:flex; justify-content:center;">
+      <div class="endorsement-card" onclick="openLightbox()">
+        <img src="/techcare-warriors/endorsement_preview.jpg">
+        <div class="endorsement-card-overlay">
+          <div class="endorsement-org">BraveHeart Soldier Foundation</div>
+          <div class="endorsement-hint">Click to expand →</div>
+        </div>
+      </div>
+    </div>
+
   </div>
-</div>
+</section>
   </div>
 </section>
 
@@ -747,6 +828,12 @@
   <div class="footer-meta">Ivaan Singh · Utsa Banerjee · Siraaj Pabby</div>
   <div class="codeavour-badge">Codeavour 7.0</div>
 </footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+  <span class="lightbox-close" onclick="closeLightbox()">✕</span>
+  <img src="/techcare-warriors/endorsement_full.jpg" alt="Endorsement Letter">
+</div>
 
 <script>
   // ── CURSOR ──
