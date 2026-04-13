@@ -1156,6 +1156,13 @@ function openLightbox() {
   lightbox.classList.add('open');
 }
 
+  document.addEventListener('keydown', function(e) {
+  const lightbox = document.getElementById('lightbox');
+  if (e.key === 'Escape' && lightbox.classList.contains('open')) {
+    closeLightbox();
+  }
+});
+  
 function closeLightbox(e) {
   if (!e || e.target.id === 'lightbox') {
     document.getElementById('lightbox').classList.remove('open');
