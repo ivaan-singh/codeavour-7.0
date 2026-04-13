@@ -461,7 +461,13 @@
   .product-link:hover { color: var(--accent); text-decoration: underline !important; text-underline-offset: 3px; text-decoration-color: var(--accent) !important; text-shadow: 0 0 8px rgba(0,255,178,0.5), 0 0 20px rgba(0,255,178,0.2); }
   .smartdrive-link { text-decoration: none !important; transition: color 0.25s, text-shadow 0.25s; }
   .smartdrive-link:hover { color: var(--accent) !important; text-decoration: underline !important; text-underline-offset: 3px; text-decoration-color: var(--accent) !important; text-shadow: 0 0 8px rgba(0,255,178,0.5), 0 0 20px rgba(0,255,178,0.2); }
-
+  .smartdrive-link,
+  .smartdrive-link:visited,
+  .smartdrive-link:active,
+  .smartdrive-link:focus {
+  color: inherit !important;
+  text-decoration: none !important;
+}
   /* VALIDATION */
   .validation-grid {
   display: grid;
